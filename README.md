@@ -21,8 +21,6 @@ The published feedback question is currently labeled with the long Amharic intro
 
 To verify the React test in the Responses tab, sign in as the form owner, open the form, select **Responses**, and locate the feedback text beginning `INTEGRATION TEST FROM REACT`. No password or credential is required by this application.
 
-To obtain the missing ID, open the form editor, add or confirm a required paragraph question for feedback, then use the public form page source or browser developer tools to find the corresponding `name="entry.<number>"`. Update `src/services/googleFormsService.js` only after confirming the label and ID match.
-
 ## Run
 
 ```bash
