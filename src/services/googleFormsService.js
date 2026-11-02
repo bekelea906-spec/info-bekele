@@ -1,44 +1,27 @@
-const FORM_ID = '1FAIpQLScHNH8aT6xm1Dh84L6800a8u6bk-gkj9rWBefhvSdXaOlk2Jw'
+import { ACADEMIC_YEARS, GOOGLE_FORM_CONFIG } from '../config/googleForm'
 
-export const GOOGLE_FORM_CONFIG = {
-  endpoint: `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`,
-  fields: {
-    academicYear: 'entry.116927091',
-    feedback: 'entry.948915635',
-  },
-}
-
-export function submitFeedback({ academicYear, feedback }) {
-  const iframe = document.createElement('iframe')
-  iframe.name = `google-form-submit-${Date.now()}`
-  iframe.title = 'Google Forms submission'
-  iframe.hidden = true
-  document.body.appendChild(iframe)
-
-  const form = document.createElement('form')
-  form.method = 'POST'
-  form.action = GOOGLE_FORM_CONFIG.endpoint
-  form.target = iframe.name
-  form.hidden = true
-
-  const fields = [
-    [GOOGLE_FORM_CONFIG.fields.academicYear, academicYear],
-    [GOOGLE_FORM_CONFIG.fields.feedback, feedback],
-  ].filter(([name]) => Boolean(name))
-
-  for (const [name, value] of fields) {
-    const input = document.createElement('input')
-    input.name = name
-    input.value = value
-    form.appendChild(input)
+export async function submitFeedback({ academicYear, feedback }) {
+  const trimmedFeedback = feedback.trim()
+  if (!ACADEMIC_YEARS.includes(academicYear)) {
+    throw new Error('Invalid academic year')
+  }
+  if (trimmedFeedback.length < 10 || trimmedFeedback.length > 1000) {
+    throw new Error('Invalid feedback length')
   }
 
-  document.body.appendChild(form)
-  form.submit()
-  window.setTimeout(() => {
-    form.remove()
-    iframe.remove()
-  }, 10000)
+  const body = new URLSearchParams({
+    [GOOGLE_FORM_CONFIG.fields.academicYear]: academicYear,
+    [GOOGLE_FORM_CONFIG.fields.feedback]: trimmedFeedback,
+  })
 
-  return { status: 'attempted' }
+  await fetch(GOOGLE_FORM_CONFIG.endpoint, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body,
+  })
+
+  return { status: 'submitted' }
 }

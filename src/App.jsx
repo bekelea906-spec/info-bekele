@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
-import { AlertCircle, ChevronDown, Heart, Languages, LockKeyhole, Send, Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, Heart, LockKeyhole, Send, Sparkles } from 'lucide-react'
+import { ACADEMIC_YEARS } from './config/googleForm'
 import { submitFeedback } from './services/googleFormsService'
 
 const translations = {
@@ -22,15 +23,12 @@ const translations = {
     minFeedback: 'ቢያንስ 10 ቁምፊዎችን ያስገቡ።',
     maxFeedback: 'ከ1000 ቁምፊዎች በላይ አይጠቀሙ።',
     error: 'መረጃውን መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
-    blocked: 'ይህ Google Form እስካሁን ለአስተያየት የተረጋገጠ መስክ ስለሌለው መላክ ተከልክሏል።',
-    attemptedTitle: 'መላክ ተሞክሯል',
-    attempted: 'መልእክትዎን ወደ Google Forms ለመላክ ተሞክሯል። እባክዎ በGoogle Forms ውስጥ በቀጥታ ያረጋግጡ፤ ከአሳሹ ማረጋገጫ ማግኘት አልተቻለም።',
     successTitle: '🙏 እናመሰግናለን!',
-    success: 'አስተያየትዎና ጥቆማዎ በተሳካ ሁኔታ ተልኳል።',
+    success: 'አስተያየትዎ ተልኳል።',
   },
   en: {
     language: 'English',
-    title: '🙏 Spiritual Father',
+    title: 'Spiritual Father',
     subtitle: 'Feedback System',
     intro: 'If you have opinions, suggestions, or recommendations about how the Spiritual Father’s activities and services can improve, please share them freely.',
     introTwo: 'Everyone is welcome to give feedback; it should be shared with respect, truth, and love.',
@@ -47,11 +45,8 @@ const translations = {
     minFeedback: 'Please enter at least 10 characters.',
     maxFeedback: 'Please use no more than 1000 characters.',
     error: 'Your feedback could not be submitted. Please try again.',
-    blocked: 'Submission is blocked because this Google Form has no verified feedback field yet.',
-    attemptedTitle: 'Submission attempted',
-    attempted: 'Your response was sent to Google Forms for processing. Please verify it directly in Google Forms; cross-origin browser submission cannot provide reliable confirmation.',
     successTitle: '🙏 Thank you!',
-    success: 'Your feedback has been submitted. We appreciate your time and contribution.',
+    success: 'Thank you, your feedback was sent.',
   },
 }
 
@@ -71,7 +66,11 @@ function App() {
   const [status, setStatus] = useState('idle')
   const submissionStarted = useRef(false)
   const t = translations[locale]
-  const direction = locale === 'am' ? 'rtl' : 'ltr'
+
+  useEffect(() => {
+    document.documentElement.lang = locale === 'am' ? 'am' : 'en'
+    document.documentElement.dir = 'ltr'
+  }, [locale])
 
   function validate() {
     const next = {}
@@ -80,40 +79,42 @@ function App() {
     if (!trimmed) next.feedback = t.requiredFeedback
     else if (trimmed.length < 10) next.feedback = t.minFeedback
     else if (trimmed.length > 1000) next.feedback = t.maxFeedback
+    if (academicYear && !ACADEMIC_YEARS.includes(academicYear)) next.academicYear = t.requiredYear
     setErrors(next)
     return Object.keys(next).length === 0
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     if (status === 'sending' || submissionStarted.current || !validate()) return
     submissionStarted.current = true
     setStatus('sending')
     try {
-      submitFeedback({ academicYear, feedback: feedback.trim() })
-      setStatus('attempted')
-    } catch (error) {
+      await submitFeedback({ academicYear, feedback: feedback.trim() })
+      setAcademicYear('')
+      setFeedback('')
+      setErrors({})
+      setStatus('success')
+    } catch {
       submissionStarted.current = false
-      setStatus(error.message.includes('no verified') ? 'blocked' : 'error')
+      setStatus('error')
     }
   }
 
   return (
-    <main className="page-shell" dir={direction}>
-      <header className="site-header">
+    <main className="page-shell" dir="ltr">
+      <header className="site-header" dir="ltr">
         <div className="header-inner">
           <div className="brand">
             <div className="brand-mark"><Heart size={22} fill="currentColor" /></div>
             <div><h1>{t.title}</h1><p>{t.subtitle}</p></div>
           </div>
           <label className="language-control">
-            <Languages size={17} aria-hidden="true" />
             <span className="sr-only">Language</span>
             <select value={locale} onChange={(event) => setLocale(event.target.value)} aria-label="Language">
               <option value="am">አማርኛ</option>
               <option value="en">English</option>
             </select>
-            <ChevronDown size={16} aria-hidden="true" />
           </label>
         </div>
       </header>
@@ -126,11 +127,11 @@ function App() {
 
         <section className="form-card" aria-labelledby="form-title">
           <div className="form-heading"><div><p className="eyebrow">{locale === 'am' ? 'አስተያየት' : 'FEEDBACK'}</p><h2 id="form-title">{t.formTitle}</h2><p>{t.formHint}</p></div><div className="lock"><LockKeyhole size={20} /></div></div>
-          {status === 'attempted' ? <div className="success-panel attempted-panel" role="status"><AlertCircle size={44} /><h2>{t.attemptedTitle}</h2><p>{t.attempted}</p><button className="secondary-button" onClick={() => { submissionStarted.current = false; setStatus('idle'); setFeedback(''); setAcademicYear('') }}>{locale === 'am' ? 'ሌላ አስተያየት ይስጡ' : 'Send another response'}</button></div> : (
+          {status === 'success' ? <div className="success-panel" role="status"><Heart size={44} fill="currentColor" /><h2>{t.successTitle}</h2><p>{t.success}</p><button className="secondary-button" onClick={() => { submissionStarted.current = false; setStatus('idle') }}>{locale === 'am' ? 'ሌላ አስተያየት ይስጡ' : 'Send another response'}</button></div> : (
             <form onSubmit={handleSubmit} noValidate>
               <div className="field"><label htmlFor="academic-year">{t.year} <span>*</span></label><div className="select-wrap"><select id="academic-year" value={academicYear} onChange={(event) => { setAcademicYear(event.target.value); setErrors((current) => ({ ...current, academicYear: undefined })) }} aria-invalid={Boolean(errors.academicYear)} aria-describedby={errors.academicYear ? 'year-error' : undefined}><option value="">{t.choose}</option>{years.map(([english, amharic]) => <option key={english} value={english}>{locale === 'am' ? amharic : english}</option>)}</select><ChevronDown size={18} aria-hidden="true" /></div>{errors.academicYear && <p className="field-error" id="year-error">{errors.academicYear}</p>}</div>
               <div className="field"><label htmlFor="feedback">{t.feedback} <span>*</span></label><textarea id="feedback" rows="7" maxLength="1000" value={feedback} onChange={(event) => { setFeedback(event.target.value); setErrors((current) => ({ ...current, feedback: undefined })) }} placeholder={t.placeholder} aria-invalid={Boolean(errors.feedback)} aria-describedby={errors.feedback ? 'feedback-error feedback-count' : 'feedback-count'} />{errors.feedback && <p className="field-error" id="feedback-error">{errors.feedback}</p>}<div className="field-meta" id="feedback-count"><span>{feedback.length}/1000</span><span>{locale === 'am' ? 'ቢያንስ 10 ቁምፊዎች' : 'Minimum 10 characters'}</span></div></div>
-              {(status === 'blocked' || status === 'error') && <div className="alert" role="alert">{status === 'blocked' ? t.blocked : t.error}</div>}
+              {status === 'error' && <div className="alert" role="alert">{t.error}</div>}
               <button className="submit-button" type="submit" disabled={status === 'sending'}><Send size={18} aria-hidden="true" />{status === 'sending' ? t.sending : t.send}</button>
               <p className="privacy-note"><LockKeyhole size={14} /> {locale === 'am' ? 'መልስዎ በGoogle Forms በኩል ብቻ ይላካል።' : 'Your response is sent only through Google Forms.'}</p>
             </form>
