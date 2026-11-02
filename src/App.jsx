@@ -24,7 +24,7 @@ const translations = {
     maxFeedback: 'ከ1000 ቁምፊዎች በላይ አይጠቀሙ።',
     error: 'መረጃውን መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
     successTitle: '🙏 እናመሰግናለን!',
-    success: 'አስተያየትዎ ተልኳል።',
+    success: 'አስተያየትዎ ወደ Google Forms ለመላክ ተሞክሯል። በአሳሹ ደህንነት ምክንያት መመዝገቡን ማረጋገጥ አንችልም።',
   },
   en: {
     language: 'English',
@@ -46,7 +46,7 @@ const translations = {
     maxFeedback: 'Please use no more than 1000 characters.',
     error: 'Your feedback could not be submitted. Please try again.',
     successTitle: '🙏 Thank you!',
-    success: 'Thank you, your feedback was sent.',
+    success: 'Your feedback was sent to Google Forms. Because of browser security, we cannot confirm that it was recorded.',
   },
 }
 

@@ -17,7 +17,7 @@ The published feedback question is currently labeled with the long Amharic intro
 
 - Native Google Forms submission: verified with `First Year` and the clearly labeled response `INTEGRATION TEST - Spiritual Father Feedback - 2026-11-02T14:13`; Google displayed its response confirmation page.
 - React submission: verified with `First Year` and `INTEGRATION TEST FROM REACT - 2026-11-02T14:13`; the app displayed its intentional `submission attempted` state.
-- The React app does not claim that a cross-origin iframe response is confirmed.
+- The React app reports that a cross-origin submission was attempted and does not claim that the response was confirmed or recorded.
 
 To verify the React test in the Responses tab, sign in as the form owner, open the form, select **Responses**, and locate the feedback text beginning `INTEGRATION TEST FROM REACT`. No password or credential is required by this application.
 
