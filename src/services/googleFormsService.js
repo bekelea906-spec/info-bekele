@@ -5,7 +5,7 @@ export async function submitFeedback({ academicYear, feedback }) {
   if (!ACADEMIC_YEARS.includes(academicYear)) {
     throw new Error('Invalid academic year')
   }
-  if (trimmedFeedback.length < 10 || trimmedFeedback.length > 1000) {
+  if (trimmedFeedback.length < 3 || trimmedFeedback.length > 1000) {
     throw new Error('Invalid feedback length')
   }
 

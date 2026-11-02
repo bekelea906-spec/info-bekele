@@ -20,7 +20,7 @@ const translations = {
     sending: 'በመላክ ላይ...',
     requiredYear: 'እባክዎ የትምህርት ዓመትዎን ይምረጡ።',
     requiredFeedback: 'እባክዎ አስተያየትዎን ያስገቡ።',
-    minFeedback: 'ቢያንስ 10 ቁምፊዎችን ያስገቡ።',
+    minFeedback: 'ቢያንስ 3 ቁምፊዎችን ያስገቡ።',
     maxFeedback: 'ከ1000 ቁምፊዎች በላይ አይጠቀሙ።',
     error: 'መረጃውን መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
     successTitle: '🙏 እናመሰግናለን!',
@@ -42,7 +42,7 @@ const translations = {
     sending: 'Submitting...',
     requiredYear: 'Please select your academic year.',
     requiredFeedback: 'Please enter your feedback.',
-    minFeedback: 'Please enter at least 10 characters.',
+    minFeedback: 'Please enter at least 3 characters.',
     maxFeedback: 'Please use no more than 1000 characters.',
     error: 'Your feedback could not be submitted. Please try again.',
     successTitle: '🙏 Thank you!',
@@ -77,7 +77,7 @@ function App() {
     if (!academicYear) next.academicYear = t.requiredYear
     const trimmed = feedback.trim()
     if (!trimmed) next.feedback = t.requiredFeedback
-    else if (trimmed.length < 10) next.feedback = t.minFeedback
+    else if (trimmed.length < 3) next.feedback = t.minFeedback
     else if (trimmed.length > 1000) next.feedback = t.maxFeedback
     if (academicYear && !ACADEMIC_YEARS.includes(academicYear)) next.academicYear = t.requiredYear
     setErrors(next)
@@ -130,7 +130,7 @@ function App() {
           {status === 'success' ? <div className="success-panel" role="status"><Heart size={44} fill="currentColor" /><h2>{t.successTitle}</h2><p>{t.success}</p><button className="secondary-button" onClick={() => { submissionStarted.current = false; setStatus('idle') }}>{locale === 'am' ? 'ሌላ አስተያየት ይስጡ' : 'Send another response'}</button></div> : (
             <form onSubmit={handleSubmit} noValidate>
               <div className="field"><label htmlFor="academic-year">{t.year} <span>*</span></label><div className="select-wrap"><select id="academic-year" value={academicYear} onChange={(event) => { setAcademicYear(event.target.value); setErrors((current) => ({ ...current, academicYear: undefined })) }} aria-invalid={Boolean(errors.academicYear)} aria-describedby={errors.academicYear ? 'year-error' : undefined}><option value="">{t.choose}</option>{years.map(([english, amharic]) => <option key={english} value={english}>{locale === 'am' ? amharic : english}</option>)}</select><ChevronDown size={18} aria-hidden="true" /></div>{errors.academicYear && <p className="field-error" id="year-error">{errors.academicYear}</p>}</div>
-              <div className="field"><label htmlFor="feedback">{t.feedback} <span>*</span></label><textarea id="feedback" rows="7" maxLength="1000" value={feedback} onChange={(event) => { setFeedback(event.target.value); setErrors((current) => ({ ...current, feedback: undefined })) }} placeholder={t.placeholder} aria-invalid={Boolean(errors.feedback)} aria-describedby={errors.feedback ? 'feedback-error feedback-count' : 'feedback-count'} />{errors.feedback && <p className="field-error" id="feedback-error">{errors.feedback}</p>}<div className="field-meta" id="feedback-count"><span>{feedback.length}/1000</span><span>{locale === 'am' ? 'ቢያንስ 10 ቁምፊዎች' : 'Minimum 10 characters'}</span></div></div>
+              <div className="field"><label htmlFor="feedback">{t.feedback} <span>*</span></label><textarea id="feedback" rows="7" maxLength="1000" value={feedback} onChange={(event) => { setFeedback(event.target.value); setErrors((current) => ({ ...current, feedback: undefined })) }} placeholder={t.placeholder} aria-invalid={Boolean(errors.feedback)} aria-describedby={errors.feedback ? 'feedback-error feedback-count' : 'feedback-count'} />{errors.feedback && <p className="field-error" id="feedback-error">{errors.feedback}</p>}<div className="field-meta" id="feedback-count"><span>{feedback.length}/1000</span><span>{locale === 'am' ? 'ቢያንስ 3 ቁምፊዎች' : 'Minimum 3 characters'}</span></div></div>
               {status === 'error' && <div className="alert" role="alert">{t.error}</div>}
               <button className="submit-button" type="submit" disabled={status === 'sending'}><Send size={18} aria-hidden="true" />{status === 'sending' ? t.sending : t.send}</button>
               <p className="privacy-note"><LockKeyhole size={14} /> {locale === 'am' ? 'መልስዎ በGoogle Forms በኩል ብቻ ይላካል።' : 'Your response is sent only through Google Forms.'}</p>
